@@ -3,7 +3,6 @@ package main;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +13,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
 
 public class Main {
+	
 	/**
 	 * Constructor, sets which directory or jar file will be examined </br>	 * 
 	 */
@@ -71,7 +71,7 @@ public class Main {
 						globalCount[1] += localCount[1]; // update the total count of declarations to this type
 					}	
 					else { // if this type has been found for the first time in this file...
-						globalCount = new Integer[] {localCount[0], localCount[1]}; // init the total count of refs/decs to this type
+						globalCount = new Integer[] {localCount[0], localCount[1], localCount[2]}; // init the total count of refs/decs to this type
 					}
 					globalMap.put(key, globalCount); // update the global map
 				}
@@ -85,8 +85,54 @@ public class Main {
 		// Print info for EVERY type found:
 		for (String key : globalMap.keySet()) {
 			System.out.println("-------------------------------------------------------------------------------------------------");	
-			System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", key, globalMap.get(key)[1], globalMap.get(key)[0]); 
+			System.out.format("%-50sDeclarations Found:%5d References Found:%5d   Type:   %s\n", key, globalMap.get(key)[1], globalMap.get(key)[0], Visitor.typeToString(globalMap.get(key)[2])); 
 		}
+		
+		// Print info for count categories:
+		int nestedDecCount = 0;
+		int nestedRefCount = 0;
+		int localDecCount = 0;
+		int localRefCount = 0;
+		int anonDecCount = 0;
+		int anonRefCount = 0;
+		int otherDecCount = 0;
+		int otherRefCount = 0;
+		int totalDecCount = 0;
+		int	totalRefCount = 0;
+		for (String key : globalMap.keySet()) {
+			int type = globalMap.get(key)[2]; 
+			if (type == Visitor.NESTED) {
+				nestedDecCount += globalMap.get(key)[1];
+				nestedRefCount += globalMap.get(key)[0];
+			}
+			else if (type == Visitor.LOCAL) {
+				localDecCount += globalMap.get(key)[1];
+				localRefCount += globalMap.get(key)[0];
+			}
+			else if (type == Visitor.ANON) {
+				anonDecCount += globalMap.get(key)[1];
+				anonRefCount += globalMap.get(key)[0];
+			}
+			else if (type == Visitor.OTHER) {
+				otherDecCount += globalMap.get(key)[1];
+				otherRefCount += globalMap.get(key)[0]; 
+			}
+			// otherwise if an error occurs, none of these will be satisfied and the total wont add up properly
+		}
+		totalDecCount = nestedDecCount + localDecCount + anonDecCount + otherDecCount;
+		totalRefCount = nestedRefCount + localRefCount + anonRefCount + otherRefCount; 
+		System.out.println("-------------------------------------------------------------------------------------------------");
+		System.out.println("-------------------------------------------------------------------------------------------------");	
+		String header = "#NESTED#";
+		System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", header, nestedDecCount, nestedRefCount); 
+		header = "#LOCAL#";
+		System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", header, localDecCount, localRefCount); 
+		header = "#ANON#";
+		System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", header, anonDecCount, anonRefCount);
+		header = "#OTHER#";
+		System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", header, otherDecCount, otherRefCount);
+		header = "#TOTAL#";
+		System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", header, totalDecCount, totalRefCount); 
 		
 		// Finally: delete all TEMP folders to prevent clutter
 		JarHandler.deleteTempFolders();
