@@ -10,8 +10,33 @@ import org.eclipse.jdt.core.dom.*;
  * AST Visitor for visiting References & Declarations
  * count[1] is declarations
  * count[0] is references
+ * count[2] is "type" of the Type (0 = OTHER, 1 = Nested, 2 = Local, 3 = Anon (all mutually exclusive))
  */
 public class Visitor extends ASTVisitor{
+	
+	public static final int OTHER = 0;
+	public static final int NESTED = 1;
+	public static final int LOCAL = 2;
+	public static final int ANON = 3; 
+	
+	public static String typeToString(int type) {
+		if (type == OTHER) {
+			return "OTHER";
+		}
+		else if (type == NESTED) {
+			return "NESTED"; 
+		}
+		else if (type == LOCAL) {
+			return "LOCAL";
+		}
+		else if (type == ANON) {
+			return "ANON";
+		}
+		else {
+			return "ERROR"; // should never occur
+		}
+	}
+	
 	Map<String, Integer[]> map = new HashMap<String, Integer[]>();
 	
 	public Map<String, Integer[]> getMap(){
@@ -27,7 +52,7 @@ public class Visitor extends ASTVisitor{
 			if(count != null) 
 				count[0]++;
 			else
-				count = new Integer[] {1,0};
+				count = new Integer[] {1,0, OTHER};
 			map.put(key, count);
 		}
 		return super.visit(node);
@@ -45,8 +70,16 @@ public class Visitor extends ASTVisitor{
 		Integer[] count = map.get(key); 
 		if(count != null) 
 			count[0]++;
-		else
-			count = new Integer[] {1,0};
+		else {
+			if (node.resolveBinding().isAnonymous())
+				count = new Integer[] {1,0, ANON};
+			else if (node.resolveBinding().isLocal())
+				count = new Integer[] {1,0, LOCAL};
+			else if (node.resolveBinding().isMember())
+				count = new Integer[] {1,0, NESTED};
+			else
+				count = new Integer[] {1,0, OTHER};
+		}	
 		map.put(key, count);
 		return super.visit(node);
 	}
@@ -60,8 +93,16 @@ public class Visitor extends ASTVisitor{
 		Integer[] count = map.get(key);
 		if(count != null) 
 			count[1]++;
-		else
-			count = new Integer[] {0,1};
+		else {
+			if (node.resolveBinding().isAnonymous())
+				count = new Integer[] {0,1, ANON};
+			else if (node.resolveBinding().isLocal())
+				count = new Integer[] {0,1, LOCAL};
+			else if (node.resolveBinding().isMember())
+				count = new Integer[] {0,1, NESTED};
+			else
+				count = new Integer[] {0,1, OTHER};
+		}	
 		map.put(key, count);		
 		return super.visit(node);
 	}
@@ -75,8 +116,16 @@ public class Visitor extends ASTVisitor{
 		Integer[] count = map.get(key);
 		if(count != null) 
 			count[1]++;
-		else
-			count = new Integer[] {0,1};
+		else {
+			if (node.resolveBinding().isAnonymous())
+				count = new Integer[] {0,1, ANON};
+			else if (node.resolveBinding().isLocal())
+				count = new Integer[] {0,1, LOCAL};
+			else if (node.resolveBinding().isMember())
+				count = new Integer[] {0,1, NESTED};
+			else
+				count = new Integer[] {0,1, OTHER};
+		}	
 		map.put(key, count); 
 		return super.visit(node);
 	}
@@ -90,8 +139,16 @@ public class Visitor extends ASTVisitor{
 		Integer[] count = map.get(key);
 		if(count != null) 
 			count[1]++;
-		else
-			count = new Integer[] {0,1};
+		else {
+			if (node.resolveBinding().isAnonymous())
+				count = new Integer[] {1,0, ANON};
+			else if (node.resolveBinding().isLocal())
+				count = new Integer[] {1,0, LOCAL};
+			else if (node.resolveBinding().isMember())
+				count = new Integer[] {1,0, NESTED};
+			else
+				count = new Integer[] {1,0, OTHER};
+		}
 		map.put(key, count); 
 		return super.visit(node);
 	}
@@ -105,8 +162,16 @@ public class Visitor extends ASTVisitor{
 		Integer[] count = map.get(key);
 		if(count != null) 
 			count[1]++;
-		else
-			count = new Integer[] {0,1};
+		else {
+			if (node.resolveBinding().isAnonymous())
+				count = new Integer[] {1,0, ANON};
+			else if (node.resolveBinding().isLocal())
+				count = new Integer[] {1,0, LOCAL};
+			else if (node.resolveBinding().isMember())
+				count = new Integer[] {1,0, NESTED};
+			else
+				count = new Integer[] {1,0, OTHER};
+		}
 		map.put(key, count); 		
 		return super.visit(node);
 	}
@@ -120,7 +185,7 @@ public class Visitor extends ASTVisitor{
 			if(count != null) 
 				count[0]++;
 			else
-				count = new Integer[] {1,0};
+				count = new Integer[] {1,0, OTHER}; // set to default OTHER
 			map.put(key, count);
 		}
 		return super.visit(node);
@@ -136,8 +201,16 @@ public class Visitor extends ASTVisitor{
 			Integer[] count = map.get(key);
 			if(count != null) 
 				count[0]++; // increment reference count
-			else
-				count = new Integer[] {1,0};
+			else {
+				if (node.resolveBinding().getDeclaringClass().isAnonymous())
+					count = new Integer[] {1,0, ANON};
+				else if (node.resolveBinding().getDeclaringClass().isLocal())
+					count = new Integer[] {1,0, LOCAL};
+				else if (node.resolveBinding().getDeclaringClass().isMember())
+					count = new Integer[] {1,0, NESTED};
+				else
+					count = new Integer[] {1,0, OTHER};
+			}
 			map.put(key, count); 
 		}
 		return super.visit(node);
@@ -151,8 +224,16 @@ public class Visitor extends ASTVisitor{
 		Integer[] count = map.get(key);
 		if(count != null) 
 			count[0]++; // increment reference count
-		else
-			count = new Integer[] {1,0};
+		else {
+			if (node.resolveBinding().getTypeDeclaration().isAnonymous())
+				count = new Integer[] {1,0, ANON};
+			else if (node.resolveBinding().getTypeDeclaration().isLocal())
+				count = new Integer[] {1,0, LOCAL};
+			else if (node.resolveBinding().getTypeDeclaration().isMember())
+				count = new Integer[] {1,0, NESTED};
+			else
+				count = new Integer[] {1,0, OTHER};
+		}	
 		map.put(key, count); 
 		return super.visit(node);
 	}	
@@ -180,7 +261,7 @@ public class Visitor extends ASTVisitor{
 			if(count != null) 
 				count[0]++; // increment reference count
 			else
-				count = new Integer[] {1,0};
+				count = new Integer[] {1,0, OTHER};
 			map.put(key, count); 
 		}
 		return super.visit(node);
