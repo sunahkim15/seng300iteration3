@@ -141,13 +141,13 @@ public class Visitor extends ASTVisitor{
 			count[1]++;
 		else {
 			if (node.resolveBinding().isAnonymous())
-				count = new Integer[] {1,0, ANON};
+				count = new Integer[] {0,1, ANON};
 			else if (node.resolveBinding().isLocal())
-				count = new Integer[] {1,0, LOCAL};
+				count = new Integer[] {0,1, LOCAL};
 			else if (node.resolveBinding().isMember())
-				count = new Integer[] {1,0, NESTED};
+				count = new Integer[] {0,1, NESTED};
 			else
-				count = new Integer[] {1,0, OTHER};
+				count = new Integer[] {0,1, OTHER};
 		}
 		map.put(key, count); 
 		return super.visit(node);
@@ -164,13 +164,13 @@ public class Visitor extends ASTVisitor{
 			count[1]++;
 		else {
 			if (node.resolveBinding().isAnonymous())
-				count = new Integer[] {1,0, ANON};
+				count = new Integer[] {0,1, ANON};
 			else if (node.resolveBinding().isLocal())
-				count = new Integer[] {1,0, LOCAL};
+				count = new Integer[] {0,1, LOCAL};
 			else if (node.resolveBinding().isMember())
-				count = new Integer[] {1,0, NESTED};
+				count = new Integer[] {0,1, NESTED};
 			else
-				count = new Integer[] {1,0, OTHER};
+				count = new Integer[] {0,1, OTHER};
 		}
 		map.put(key, count); 		
 		return super.visit(node);
