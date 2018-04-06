@@ -14,6 +14,18 @@ import org.eclipse.jdt.core.dom.*;
 
 public class Main {
 	
+	// These fields are for testing purposes ONLY:
+	public static int debug_nestedDecCount = 0;
+	public static int debug_nestedRefCount = 0;
+	public static int debug_localDecCount = 0;
+	public static int debug_localRefCount = 0;
+	public static int debug_anonDecCount = 0;
+	public static int debug_anonRefCount = 0;
+	public static int debug_otherDecCount = 0;
+	public static int debug_otherRefCount = 0;
+	public static int debug_totalDecCount = 0;
+	public static int debug_totalRefCount = 0; 
+	
 	/**
 	 * Constructor, sets which directory or jar file will be examined </br>	 * 
 	 */
@@ -133,6 +145,18 @@ public class Main {
 		System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", header, otherDecCount, otherRefCount);
 		header = "#TOTAL#";
 		System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", header, totalDecCount, totalRefCount); 
+		
+		// save the results values in the static debug variables in order to test their values in the test suite easily
+		debug_anonDecCount = anonDecCount;
+		debug_anonRefCount = anonRefCount;
+		debug_localDecCount = localDecCount;
+		debug_localRefCount = localRefCount;
+		debug_nestedDecCount = nestedDecCount;
+		debug_nestedRefCount = nestedRefCount;
+		debug_otherDecCount = otherDecCount;
+		debug_otherRefCount = otherRefCount;
+		debug_totalDecCount = totalDecCount;
+		debug_totalRefCount = totalRefCount; 
 		
 		// Finally: delete all TEMP folders to prevent clutter
 		JarHandler.deleteTempFolders();
